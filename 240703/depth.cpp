@@ -31,3 +31,5 @@ int32_t main()
 	printTree(1);
 	return 0;
 }
+
+// 푸는중
