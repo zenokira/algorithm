@@ -3,13 +3,19 @@
 #include <bitset>
 #include <string>
 #include <map>
-#include <vector>
+
 using namespace std;
 
 #define MAX_SIZE 1000001
 
 map<int, int> m;
-vector<bool> v;
+
+
+int find_1stTrue(bitset<MAX_SIZE>bs, int K);
+int find_2ndTrue(bitset<MAX_SIZE>bs, int first, int K);
+int find_2ndTolastTrue(bitset<MAX_SIZE>bs, int sec, int K);
+int sum_false(bitset<MAX_SIZE>bs, int sec);
+
 
 void init()
 {
@@ -21,33 +27,30 @@ void init()
 	}
 }
 
-void sol(int n, int K)
+void solv(bitset<MAX_SIZE>& bs, int K)
 {
-	bitset<MAX_SIZE> bs(n);
-	int s_idx, e_idx = 0;
 	int cnt = 0;
 	int plus_cnt = 0;
 	int multi_cnt = 0;
-	for (int i = K - 1; i >= 0; i--)
-	{
-		v.push_back(true);
-	}
+	
+	int _1st = find_1stTrue(bs, K);
+	int _2nd = find_2ndTrue(bs, _1st, K);
+	int _3rd = find_2ndTolastTrue(bs, _2nd, K);
 
+	if (_1st == -1) return;
+	
+	if (_2nd - _1st == 1) _2nd = _1st;
+	cnt = _3rd - _2nd + 1;
 
-
-	if (cnt > m[s_idx])
+	int _0sum = sum_false(bs, _2nd);
+	if (cnt >= _0sum)
 	{
-		while (1) {
-			n |= 1; plus_cnt++;
-		}
+		int N = bs.to_ulong() + _0sum;
+		bs = bitset<MAX_SIZE>(N);
+		plus_cnt = _0sum;
 	}
-	for (int i = K - 1; i >= 0; i--)
-	{
-		if (bs[i]) {
-			s_idx = i;
-		}
-	}
-	multi_cnt = K - s_idx;
+	if(find_1stTrue(bs, K) != -1)
+		multi_cnt = K - find_1stTrue(bs, K);
 
 	cout << plus_cnt + multi_cnt;
 }
@@ -64,6 +67,40 @@ int main()
 	bitset<MAX_SIZE> bs_val(str);
 	init();
 
-	sol(bs_val.to_ulong(), K);
+	solv(bs_val, K);
 	return 0;
+}
+
+
+
+int find_1stTrue(bitset<MAX_SIZE>bs, int K)
+{
+	for (int idx = 0; idx < K; idx++)
+		if (bs[idx]) return idx;
+
+	return -1;
+}
+
+int find_2ndTrue(bitset<MAX_SIZE>bs, int first, int K)
+{
+	for (int idx = first + 1; idx < K; idx++)
+		if (bs[idx]) return idx;
+	return -1;
+}
+int find_2ndTolastTrue(bitset<MAX_SIZE>bs, int sec, int K)
+{
+	for (int idx = sec + 1; idx < K; idx++)
+		if (bs[idx] == 0) return idx - 1;
+
+}
+
+int sum_false(bitset<MAX_SIZE>bs, int sec)
+{
+	int sum = 0;
+	for (int i = 0; i < sec; i++)
+	{
+		if (bs[i] == 0) sum += m[i];
+	}
+	sum += 1;
+	return sum;
 }
